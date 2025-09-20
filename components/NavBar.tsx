@@ -83,10 +83,10 @@ export default function Navbar() {
               exit={{ opacity: 0, y: 5 }}
               transition={{ duration: 0.3 }}
             >
-              <a href="#about" className="hover:text-gray-300">
+              <a href="/about" className="hover:text-gray-300">
                 About
               </a>
-              <a href="#projects" className="hover:text-gray-300">
+              <a href="/projects" className="hover:text-gray-300">
                 Projects
               </a>
               <a href="#research" className="hover:text-gray-300">
