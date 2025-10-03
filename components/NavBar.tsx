@@ -27,13 +27,18 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [mounted]);
 
-  // Expand behavior
+  // Expand behavior: collapsed at top (expands on hover), expanded after scroll
   const [isExpanded, setIsExpanded] = useState(false);
   useEffect(() => {
     let timeout: NodeJS.Timeout;
-    if (hovered || scrolled) {
+    if (scrolled) {
+      // After scrolling, always expanded (hover has no effect)
+      setIsExpanded(true);
+    } else if (hovered) {
+      // At top, expand on hover
       setIsExpanded(true);
     } else {
+      // At top without hover, collapse after delay
       timeout = setTimeout(() => setIsExpanded(false), 150);
     }
     return () => clearTimeout(timeout);
