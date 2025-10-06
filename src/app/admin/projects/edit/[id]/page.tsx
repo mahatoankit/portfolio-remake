@@ -7,6 +7,7 @@ import { Project } from "@/types/project";
 import { useAuth } from "../../../useAuth";
 import ImageUpload from "@/components/ImageUpload";
 import "easymde/dist/easymde.min.css";
+import { CheckCircle2, Clock, CalendarClock, Star, Trophy } from "lucide-react";
 
 // Dynamically import SimpleMDE to avoid SSR issues
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
@@ -28,6 +29,8 @@ export default function EditProjectPage() {
     liveUrl: "",
     featured: false,
     category: "web" as Project["category"],
+    status: "completed" as Project["status"],
+    isSpotlight: false,
     slug: "",
     content: "", // Markdown content
   });
@@ -35,6 +38,33 @@ export default function EditProjectPage() {
   const [techInput, setTechInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
+  const [showSpotlightConfirm, setShowSpotlightConfirm] = useState(false);
+  const [existingSpotlight, setExistingSpotlight] = useState<Project | null>(null);
+
+  // Auto-generate slug from title
+  const generateSlug = (text: string) => {
+    return text
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-+|-+$/g, ''); // Remove leading/trailing hyphens
+  };
+
+  const handleTitleChange = (newTitle: string) => {
+    setFormData({ ...formData, title: newTitle });
+    // Only auto-generate slug if it hasn't been manually edited
+    if (!slugManuallyEdited && isNew) {
+      setFormData((prev) => ({ ...prev, title: newTitle, slug: generateSlug(newTitle) }));
+    }
+  };
+
+  const handleSlugChange = (newSlug: string) => {
+    setFormData({ ...formData, slug: newSlug });
+    setSlugManuallyEdited(true);
+  };
 
   useEffect(() => {
     if (!isNew) {
@@ -58,6 +88,8 @@ export default function EditProjectPage() {
           liveUrl: project.liveUrl || "",
           featured: project.featured,
           category: project.category,
+          status: project.status || "completed",
+          isSpotlight: project.isSpotlight || false,
           slug: project.slug,
           content: project.content || "",
         });
@@ -71,6 +103,32 @@ export default function EditProjectPage() {
 
   const handleSave = async () => {
     setSaving(true);
+    try {
+      // If marking as spotlight, check if another project is already spotlight
+      if (formData.isSpotlight) {
+        const res = await fetch("/api/projects");
+        const projects = await res.json();
+        const currentSpotlight = projects.find((p: Project) => 
+          p.isSpotlight && p.id !== Number(params.id)
+        );
+        
+        if (currentSpotlight) {
+          setExistingSpotlight(currentSpotlight);
+          setShowSpotlightConfirm(true);
+          setSaving(false);
+          return;
+        }
+      }
+      
+      await saveProject();
+    } catch (error) {
+      console.error("Failed to save project:", error);
+      alert("Failed to save project");
+      setSaving(false);
+    }
+  };
+
+  const saveProject = async () => {
     try {
       const url = isNew ? "/api/projects" : `/api/projects/${params.id}`;
       const method = isNew ? "POST" : "PUT";
@@ -95,6 +153,17 @@ export default function EditProjectPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSpotlightReplace = async () => {
+    setShowSpotlightConfirm(false);
+    setSaving(true);
+    await saveProject();
+  };
+
+  const handleSpotlightCancel = () => {
+    setShowSpotlightConfirm(false);
+    setFormData({ ...formData, isSpotlight: false });
   };
 
   const addTechnology = () => {
@@ -185,9 +254,7 @@ export default function EditProjectPage() {
             <input
               type="text"
               value={formData.title}
-              onChange={(e) =>
-                setFormData({ ...formData, title: e.target.value })
-              }
+              onChange={(e) => handleTitleChange(e.target.value)}
               className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg border border-neutral-700 focus:border-white transition font-geist"
               placeholder="Project title"
             />
@@ -196,14 +263,12 @@ export default function EditProjectPage() {
           {/* Slug */}
           <div>
             <label className="block text-white font-semibold mb-2 font-geist">
-              Slug
+              Slug {isNew && <span className="text-neutral-500 text-sm font-normal">(auto-generated, but editable)</span>}
             </label>
             <input
               type="text"
               value={formData.slug}
-              onChange={(e) =>
-                setFormData({ ...formData, slug: e.target.value })
-              }
+              onChange={(e) => handleSlugChange(e.target.value)}
               className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg border border-neutral-700 focus:border-white transition font-geist"
               placeholder="project-slug"
             />
@@ -250,6 +315,29 @@ export default function EditProjectPage() {
             </div>
             <div>
               <label className="block text-white font-semibold mb-2 font-geist">
+                Status
+              </label>
+              <select
+                value={formData.status}
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    status: e.target.value as Project["status"],
+                  })
+                }
+                className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg border border-neutral-700 focus:border-white transition font-geist"
+              >
+                <option value="completed">✅ Completed</option>
+                <option value="in-progress">🚧 In Progress</option>
+                <option value="planned">📋 Planned</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Featured & Spotlight */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-white font-semibold mb-2 font-geist">
                 Featured
               </label>
               <label className="flex items-center cursor-pointer">
@@ -263,6 +351,24 @@ export default function EditProjectPage() {
                 />
                 <span className="ml-3 text-neutral-300 font-geist">
                   Show in featured section
+                </span>
+              </label>
+            </div>
+            <div>
+              <label className="block text-white font-semibold mb-2 font-geist">
+                Spotlight (Latest & Greatest)
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={formData.isSpotlight}
+                  onChange={(e) =>
+                    setFormData({ ...formData, isSpotlight: e.target.checked })
+                  }
+                  className="w-6 h-6 rounded bg-neutral-800 border-neutral-700"
+                />
+                <span className="ml-3 text-neutral-300 font-geist">
+                  ⭐ Mark as spotlight project
                 </span>
               </label>
             </div>
@@ -380,6 +486,38 @@ export default function EditProjectPage() {
           </div>
         </div>
       </div>
+
+      {/* Spotlight Confirmation Dialog */}
+      {showSpotlightConfirm && existingSpotlight && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-neutral-900 border border-neutral-700 rounded-2xl p-8 max-w-md w-full">
+            <h3 className="text-2xl font-bold text-white mb-4 font-geist">
+              Replace Spotlight Project?
+            </h3>
+            <p className="text-neutral-300 mb-2 font-geist">
+              <span className="font-semibold text-white">"{existingSpotlight.title}"</span> is currently marked as the spotlight project.
+            </p>
+            <p className="text-neutral-400 mb-6 font-geist">
+              This will replace it with <span className="font-semibold text-white">"{formData.title}"</span>. Are you sure?
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={handleSpotlightCancel}
+                className="flex-1 px-6 py-3 rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition font-geist font-semibold"
+              >
+                NO
+              </button>
+              <button
+                onClick={handleSpotlightReplace}
+                disabled={saving}
+                className="flex-1 px-6 py-3 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition font-geist font-semibold disabled:opacity-50"
+              >
+                {saving ? "REPLACING..." : "REPLACE"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <style jsx global>{`
         .markdown-editor .EasyMDEContainer {

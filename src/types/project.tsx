@@ -8,6 +8,8 @@ export interface Project {
     liveUrl?: string;
     featured: boolean;
     category: 'web' | 'mobile' | 'AI/ML' | 'data-science' | 'other';
+    status: 'completed' | 'in-progress' | 'planned';
+    isSpotlight: boolean;
     createdAt: string;
     updatedAt?: string;
     slug: string;

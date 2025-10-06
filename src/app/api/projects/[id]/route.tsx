@@ -25,6 +25,19 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
+    // If marking as spotlight, remove spotlight from all other projects
+    if (body.isSpotlight) {
+      await prisma.project.updateMany({
+        where: {
+          id: { not: Number(id) },
+          isSpotlight: true,
+        },
+        data: {
+          isSpotlight: false,
+        },
+      });
+    }
+    
     const updatedProject = await prisma.project.update({
       where: { id: Number(id) },
       data: {
@@ -36,6 +49,8 @@ export async function PUT(
         liveUrl: body.liveUrl,
         featured: body.featured,
         category: body.category,
+        status: body.status,
+        isSpotlight: body.isSpotlight,
         slug: body.slug,
         content: body.content,
       },

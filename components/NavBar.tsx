@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
@@ -66,8 +67,8 @@ export default function Navbar() {
           mass: 0.8,
         }}
       >
-        {/* Left Circle (Logo) */}
-        <div className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-black shrink-0">
+        {/* Left Circle (Logo) - Now Clickable */}
+        <Link href="/" className="w-12 h-12 rounded-full overflow-hidden flex items-center justify-center bg-black shrink-0 cursor-pointer hover:bg-neutral-800 transition-colors">
           <Image
             src="/images/1.svg"
             alt="Logo"
@@ -75,7 +76,7 @@ export default function Navbar() {
             height={28}
             className="object-contain invert"
           />
-        </div>
+        </Link>
 
         {/* Middle Links */}
         <AnimatePresence mode="wait">
