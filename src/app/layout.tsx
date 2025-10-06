@@ -25,6 +25,27 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Suppress NextAuth CLIENT_FETCH_ERROR in console
+              if (typeof window !== 'undefined') {
+                const originalError = console.error;
+                console.error = (...args) => {
+                  if (
+                    args[0]?.includes?.('[next-auth]') ||
+                    args[0]?.includes?.('CLIENT_FETCH_ERROR')
+                  ) {
+                    return; // Suppress NextAuth errors
+                  }
+                  originalError.apply(console, args);
+                };
+              }
+            `,
+          }}
+        />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
         suppressHydrationWarning
