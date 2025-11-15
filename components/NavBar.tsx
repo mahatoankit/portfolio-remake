@@ -95,16 +95,16 @@ export default function Navbar() {
               <a href="/projects" className="hover:text-gray-300">
                 Projects
               </a>
-              <a href="#research" className="hover:text-gray-300">
-                Research
+              <a href="/research" className="hover:text-gray-300">
+                Publications
               </a>
-              <a href="#experience" className="hover:text-gray-300">
+              <a href="/experience" className="hover:text-gray-300">
                 Experience
               </a>
-              <a href="#blog" className="hover:text-gray-300">
+              <a href="/blog" className="hover:text-gray-300">
                 Blog
               </a>
-              <a href="#contact" className="hover:text-gray-300">
+              <a href="/contact" className="hover:text-gray-300">
                 Contact
               </a>
             </motion.div>

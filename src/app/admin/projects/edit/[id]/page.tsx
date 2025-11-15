@@ -5,9 +5,8 @@ import { useRouter, useParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Project } from "@/types/project";
 import { useAuth } from "../../../useAuth";
-import ImageUpload from "@/components/ImageUpload";
 import "easymde/dist/easymde.min.css";
-import { CheckCircle2, Clock, CalendarClock, Star, Trophy } from "lucide-react";
+import { CheckCircle2, Clock, CalendarClock, Star, Trophy, Image as ImageIcon } from "lucide-react";
 
 // Dynamically import SimpleMDE to avoid SSR issues
 const SimpleMDE = dynamic(() => import("react-simplemde-editor"), {
@@ -38,6 +37,7 @@ export default function EditProjectPage() {
   const [techInput, setTechInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [uploadingThumbnail, setUploadingThumbnail] = useState(false);
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(false);
   const [showSpotlightConfirm, setShowSpotlightConfirm] = useState(false);
   const [existingSpotlight, setExistingSpotlight] = useState<Project | null>(null);
@@ -104,7 +104,6 @@ export default function EditProjectPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      // If marking as spotlight, check if another project is already spotlight
       if (formData.isSpotlight) {
         const res = await fetch("/api/projects");
         const projects = await res.json();
@@ -164,6 +163,34 @@ export default function EditProjectPage() {
   const handleSpotlightCancel = () => {
     setShowSpotlightConfirm(false);
     setFormData({ ...formData, isSpotlight: false });
+  };
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingThumbnail(true);
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    try {
+      const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formDataUpload,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setFormData((prev) => ({ ...prev, thumbnail: data.url }));
+      } else {
+        alert("Failed to upload thumbnail");
+      }
+    } catch (error) {
+      console.error("Error uploading thumbnail:", error);
+      alert("Error uploading thumbnail");
+    } finally {
+      setUploadingThumbnail(false);
+    }
   };
 
   const addTechnology = () => {
@@ -327,9 +354,9 @@ export default function EditProjectPage() {
                 }
                 className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg border border-neutral-700 focus:border-white transition font-geist"
               >
-                <option value="completed">✅ Completed</option>
-                <option value="in-progress">🚧 In Progress</option>
-                <option value="planned">📋 Planned</option>
+                <option value="completed">Completed</option>
+                <option value="in-progress"> In Progress</option>
+                <option value="planned"> Planned</option>
               </select>
             </div>
           </div>
@@ -375,16 +402,33 @@ export default function EditProjectPage() {
           </div>
 
           {/* Thumbnail */}
-          <div>
-            <label className="block text-white font-semibold mb-2 font-geist">
+          <div className="rounded-lg border border-neutral-800 bg-neutral-900 p-6">
+            <label className="flex items-center gap-2 text-sm font-semibold text-white mb-3">
+              <ImageIcon className="h-4 w-4" />
               Thumbnail Image
             </label>
-            <ImageUpload
-              currentImage={formData.thumbnail}
-              onUploadComplete={(url) =>
-                setFormData({ ...formData, thumbnail: url })
-              }
-            />
+            <div className="flex items-center gap-4 mb-4">
+              {formData.thumbnail && (
+                <div className="h-24 w-24 rounded-lg border border-neutral-700 bg-neutral-800 overflow-hidden">
+                  <img
+                    src={formData.thumbnail}
+                    alt="Thumbnail preview"
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+              )}
+              <div className="flex-1">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleThumbnailUpload}
+                  className="w-full text-sm text-neutral-400 file:mr-4 file:rounded-lg file:border-0 file:bg-neutral-800 file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-neutral-700"
+                />
+                {uploadingThumbnail && (
+                  <p className="mt-2 text-sm text-neutral-500">Uploading...</p>
+                )}
+              </div>
+            </div>
             {formData.thumbnail && (
               <input
                 type="text"
@@ -392,7 +436,7 @@ export default function EditProjectPage() {
                 onChange={(e) =>
                   setFormData({ ...formData, thumbnail: e.target.value })
                 }
-                className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg border border-neutral-700 focus:border-white transition font-geist mt-2"
+                className="w-full rounded-lg border border-neutral-700 bg-neutral-800 px-4 py-3 text-white focus:border-blue-500 focus:outline-none"
                 placeholder="Or paste image URL"
               />
             )}

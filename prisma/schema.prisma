@@ -34,3 +34,37 @@ model Project {
   isSpotlight  Boolean  @default(false)
   status       String   @default("completed")
 }
+
+model Experience {
+  id          Int      @id @default(autoincrement())
+  company     String
+  role        String
+  duration    String
+  description String   @db.Text
+  logo        String?
+  year        String   // For grouping in timeline (e.g., "2024", "2023")
+  startDate   String   // Display format (e.g., "Jan 2024")
+  endDate     String?  // Display format (e.g., "Present", "Dec 2024")
+  order       Int      @default(0) // For custom ordering
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Research {
+  id            Int      @id @default(autoincrement())
+  title         String
+  authors       String[] // Array of author names
+  journal       String   // Journal/Conference name
+  year          String   // Publication year
+  date          String   // Full publication date
+  abstract      String   @db.Text
+  doi           String?  // Digital Object Identifier
+  pdfUrl        String?  // Link to PDF
+  externalUrl   String?  // Link to publisher page
+  citations     Int      @default(0)
+  tags          String[] // Research areas/keywords
+  thumbnail     String?  // Optional image/cover
+  featured      Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}

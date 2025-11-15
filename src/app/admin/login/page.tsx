@@ -25,7 +25,7 @@ export default function AdminLoginPage() {
       if (result?.error) {
         setError("Invalid credentials");
       } else {
-        router.push("/admin/projects");
+        router.push("/admin");
       }
     } catch (error) {
       setError("An error occurred");
