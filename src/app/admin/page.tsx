@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "./useAuth";
 import Link from "next/link";
-import { FolderKanban, Briefcase, BookOpen, LogOut, FileText } from "lucide-react";
+import { FolderKanban, Briefcase, BookOpen, LogOut, FileText, PenLine } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 export default function AdminDashboard() {
@@ -52,7 +52,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Management Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Projects Management */}
           <Link
             href="/admin/projects"
@@ -106,20 +106,51 @@ export default function AdminDashboard() {
           {/* Publications Management */}
           <Link
             href="/admin/research"
-            className="group relative overflow-hidden rounded-3xl border border-neutral-800/50 bg-neutral-900/30 backdrop-blur-xl p-10 transition-all hover:bg-neutral-900/50"
+            className="group relative overflow-hidden rounded-3xl border border-neutral-800/50 bg-neutral-900/30 backdrop-blur-xl p-10 transition-all duration-500 hover:bg-neutral-900/50 hover:border-neutral-700"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-            <div className="relative">
-              <div className="mb-4 inline-flex rounded-2xl bg-white/5 p-4">
+            <div className="relative z-10">
+              <div className="mb-8 inline-flex items-center justify-center rounded-2xl bg-white/5 p-4 backdrop-blur-sm">
                 <FileText className="h-8 w-8 text-white" />
               </div>
-              <h2 className="mb-2 text-2xl font-semibold text-white tracking-tight">
+              <h2 className="text-3xl font-semibold text-white mb-3 tracking-tight">
                 Publications
               </h2>
-              <p className="text-sm text-neutral-400">
+              <p className="text-neutral-400 leading-relaxed mb-6">
                 Manage your scientific publications and research papers.
               </p>
+              <div className="text-white/80 text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-all">
+                Manage
+                <span className="text-base">→</span>
+              </div>
             </div>
+            
+            {/* Subtle gradient on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          </Link>
+
+          {/* Blog Management */}
+          <Link
+            href="/admin/blog"
+            className="group relative overflow-hidden rounded-3xl border border-neutral-800/50 bg-neutral-900/30 backdrop-blur-xl p-10 transition-all duration-500 hover:bg-neutral-900/50 hover:border-neutral-700"
+          >
+            <div className="relative z-10">
+              <div className="mb-8 inline-flex items-center justify-center rounded-2xl bg-white/5 p-4 backdrop-blur-sm">
+                <PenLine className="h-8 w-8 text-white" />
+              </div>
+              <h2 className="text-3xl font-semibold text-white mb-3 tracking-tight">
+                Blog
+              </h2>
+              <p className="text-neutral-400 leading-relaxed mb-6">
+                Write and publish blog posts with a seamless markdown editor.
+              </p>
+              <div className="text-white/80 text-sm font-medium flex items-center gap-2 group-hover:gap-3 transition-all">
+                Manage
+                <span className="text-base">→</span>
+              </div>
+            </div>
+            
+            {/* Subtle gradient on hover */}
+            <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </Link>
         </div>
       </div>

@@ -9,7 +9,7 @@ export default function AuthProvider({
 }) {
   return (
     <SessionProvider
-      refetchInterval={5 * 60} // Refetch session every 5 minutes instead of constantly
+      refetchInterval={0} // Disable automatic refetching
       refetchOnWindowFocus={false} // Don't refetch when window regains focus
       basePath="/api/auth" // Explicitly set the base path
     >

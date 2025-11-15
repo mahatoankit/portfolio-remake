@@ -68,3 +68,20 @@ model Research {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
+
+model Blog {
+  id          Int      @id @default(autoincrement())
+  title       String
+  slug        String   @unique
+  excerpt     String   @db.Text // Short description
+  content     String   @db.Text // Full markdown content
+  thumbnail   String?  // Cover image
+  tags        String[] // Blog categories/tags
+  published   Boolean  @default(false) // Draft or published
+  featured    Boolean  @default(false)
+  readTime    Int      @default(5) // Estimated read time in minutes
+  views       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  publishedAt DateTime?
+}

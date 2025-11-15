@@ -34,9 +34,10 @@ export default function Home() {
 
             <div className="mb-12">
               <p className="text-lg md:text-xl lg:text-2xl text-gray-300 font-light leading-relaxed max-w-3xl mx-auto">
-                Crafting exceptional digital experiences through
-                <span className="text-white font-normal"> innovative design</span> and
-                <span className="text-white font-normal"> cutting-edge technology</span>
+                {/* Crafting exceptional digital experiences through */}
+                {/* <span className="text-white font-normal"> innovative design</span> and */}
+                <span className="text-white font-normal"> You Know The Business and I Know The Code </span>
+                {/* <span className="text-white font-normal"> cutting-edge technology</span> */}
               </p>
             </div>
 

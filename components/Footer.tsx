@@ -30,7 +30,7 @@ export default function Footer() {
               <span className="text-sm font-medium">GitHub</span>
             </a>
             <a
-              href="mailto:ankit@example.com"
+              href="mailto:disezankit@gmail.com"
               className="flex items-center gap-2 text-neutral-400 hover:text-white transition-colors px-4 py-2 rounded-full border border-neutral-700 hover:border-neutral-500"
             >
               <Mail size={18} />
